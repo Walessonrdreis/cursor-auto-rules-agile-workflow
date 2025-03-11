@@ -1,8 +1,8 @@
 ---
 description: USE when writing TypeScript code to ensure consistent, meaningful, and appropriate code commenting practices
 globs: **/*.{ts,tsx}
+alwaysApply: false
 ---
-
 # TypeScript Commenting Standards
 
 <version>1.0.0</version>
@@ -133,4 +133,4 @@ const similarProducts = findSimilarProducts(searchTerm, allProducts);
 if (hasLegacyAdminRole(user) || hasEditorPermission(user)) {
   allowAccess();
 }
-</example> 
+</example>
