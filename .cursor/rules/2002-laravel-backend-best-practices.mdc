@@ -1,0 +1,410 @@
+---
+description: USE ao desenvolver aplicações Backend com Laravel para garantir código limpo, manutenível e escalável baseado em princípios SOLID
+globs: **/*.php
+alwaysApply: false
+---
+# Laravel Backend Best Practices
+
+<version>1.0.0</version>
+
+## Contexto
+- Aplicável ao desenvolver APIs RESTful e aplicações Backend com Laravel
+- Foco em princípios SOLID, design patterns e boas práticas de arquitetura
+- Recomendado para projetos médios a grandes que exigem manutenibilidade a longo prazo
+
+## Requisitos
+
+### 1. Arquitetura e Organização de Código
+
+- Implemente a arquitetura em camadas: Controller → Service → Repository → Model
+- Use Repository Pattern para abstrair e encapsular a lógica de acesso a dados
+- Implemente Service Layer para encapsular a lógica de negócios complexa
+- Mantenha controllers leves com responsabilidade única (SRP)
+- Crie interfaces para todas as classes de repositório (LSP, DIP)
+- Utilize injeção de dependência ao invés de instanciação direta (DIP)
+- Organize código em módulos/domínios para facilitar manutenção
+
+### 2. Princípios SOLID
+
+- **S** - Single Responsibility: Cada classe deve ter uma única responsabilidade
+- **O** - Open/Closed: Classes devem ser abertas para extensão, fechadas para modificação
+- **L** - Liskov Substitution: Subtipos devem ser substituíveis por seus tipos base
+- **I** - Interface Segregation: Interfaces específicas são melhores que uma interface geral
+- **D** - Dependency Inversion: Dependa de abstrações, não de implementações concretas
+
+### 3. API RESTful
+
+- Siga convenções RESTful para rotas e endpoints
+- Use resource controllers (`Route::resource()`) para operações CRUD
+- Implemente versionamento de API (v1, v2) via prefixos ou headers
+- Padronize as respostas JSON usando API Resources
+- Documente a API com ferramentas como Swagger/OpenAPI
+- Implemente paginação para listas longas de recursos
+
+### 4. Validação e Tratamento de Erros
+
+- Crie Form Requests para validação de dados
+- Implemente middleware para validação e autenticação
+- Centralize tratamento de exceções com exception handlers personalizados
+- Retorne códigos HTTP apropriados (200, 201, 400, 401, 403, 404, 500)
+- Forneça mensagens de erro claras e consistentes
+
+### 5. Autenticação e Autorização
+
+- Use Sanctum para autenticação API com tokens
+- Implemente políticas (Policies) para autorização granular
+- Defina Gates para verificações de permissão complexas
+- Utilize middleware para proteção de rotas
+- Não armazene lógica de autorização nos controllers
+
+### 6. Banco de Dados e Modelos
+
+- Use migrações para definir e versionar estrutura do banco
+- Implemente factories e seeders para testes e dados iniciais
+- Utilize relacionamentos Eloquent de forma eficiente
+- Configure índices para consultas frequentes
+- Use eager loading para evitar problema N+1
+- Implemente soft delete quando apropriado
+- Defina escopos de consulta (scopes) para queries reutilizáveis
+
+### 7. Performance e Otimização
+
+- Utilize cache para dados estáticos ou de consulta intensiva
+- Implemente filas (Queues) para processos intensivos ou longos
+- Configure indexação de banco de dados adequadamente
+- Use lazy loading apenas quando necessário
+- Minimize o número de queries SQL usando eager loading
+- Monitore e otimize consultas lentas
+
+### 8. Testes
+
+- Escreva testes unitários para camadas de serviço e repositório
+- Implemente testes de integração para endpoints da API
+- Configure CI/CD para executar testes automaticamente
+- Use factories para gerar dados de teste consistentes
+- Utilize mock objects para testar componentes isoladamente
+
+## Exemplos
+
+### Estrutura de Diretórios Recomendada
+
+<example>
+app/
+├── Http/
+│   ├── Controllers/
+│   │   └── API/
+│   │       └── V1/
+│   │           └── UserController.php
+│   ├── Requests/
+│   │   └── User/
+│   │       └── StoreUserRequest.php
+│   ├── Resources/
+│   │   └── UserResource.php
+│   └── Middleware/
+├── Services/
+│   └── UserService.php
+├── Repositories/
+│   ├── Interfaces/
+│   │   └── UserRepositoryInterface.php
+│   └── Eloquent/
+│       └── UserRepository.php
+├── Models/
+│   └── User.php
+└── Providers/
+    └── RepositoryServiceProvider.php
+</example>
+
+### Implementação de Repository Pattern
+
+<example>
+// Interface
+namespace App\Repositories\Interfaces;
+
+interface UserRepositoryInterface {
+    public function all();
+    public function find($id);
+    public function create(array $data);
+    public function update($id, array $data);
+    public function delete($id);
+}
+
+// Implementação
+namespace App\Repositories\Eloquent;
+
+use App\Models\User;
+use App\Repositories\Interfaces\UserRepositoryInterface;
+
+class UserRepository implements UserRepositoryInterface {
+    protected $model;
+    
+    public function __construct(User $user) {
+        $this->model = $user;
+    }
+    
+    public function all() {
+        return $this->model->all();
+    }
+    
+    public function find($id) {
+        return $this->model->findOrFail($id);
+    }
+    
+    public function create(array $data) {
+        return $this->model->create($data);
+    }
+    
+    public function update($id, array $data) {
+        $record = $this->find($id);
+        $record->update($data);
+        return $record;
+    }
+    
+    public function delete($id) {
+        return $this->find($id)->delete();
+    }
+}
+
+// Service Provider
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+use App\Repositories\Interfaces\UserRepositoryInterface;
+use App\Repositories\Eloquent\UserRepository;
+
+class RepositoryServiceProvider extends ServiceProvider {
+    public function register() {
+        $this->app->bind(
+            UserRepositoryInterface::class, 
+            UserRepository::class
+        );
+    }
+}
+</example>
+
+### Service Layer
+
+<example>
+namespace App\Services;
+
+use App\Repositories\Interfaces\UserRepositoryInterface;
+use Illuminate\Support\Facades\Hash;
+
+class UserService {
+    protected $userRepository;
+    
+    public function __construct(UserRepositoryInterface $userRepository) {
+        $this->userRepository = $userRepository;
+    }
+    
+    public function getAllUsers() {
+        return $this->userRepository->all();
+    }
+    
+    public function createUser(array $data) {
+        // Lógica de negócio
+        $data['password'] = Hash::make($data['password']);
+        
+        // Outras regras de negócio...
+        
+        return $this->userRepository->create($data);
+    }
+    
+    // Outros métodos...
+}
+</example>
+
+### Controller Limpo
+
+<example>
+namespace App\Http\Controllers\API\V1;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Resources\UserResource;
+use App\Services\UserService;
+
+class UserController extends Controller {
+    protected $userService;
+    
+    public function __construct(UserService $userService) {
+        $this->userService = $userService;
+    }
+    
+    public function index() {
+        $users = $this->userService->getAllUsers();
+        return UserResource::collection($users);
+    }
+    
+    public function store(StoreUserRequest $request) {
+        $user = $this->userService->createUser($request->validated());
+        return new UserResource($user);
+    }
+    
+    // Outros métodos...
+}
+</example>
+
+### Exemplo de Validação com Form Request
+
+<example>
+namespace App\Http\Requests\User;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class StoreUserRequest extends FormRequest {
+    public function authorize() {
+        return true;
+    }
+    
+    public function rules() {
+        return [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+        ];
+    }
+    
+    public function messages() {
+        return [
+            'email.required' => 'O campo email é obrigatório.',
+            'email.unique' => 'Este email já está em uso.',
+            // Outras mensagens personalizadas...
+        ];
+    }
+}
+</example>
+
+### Exemplo de Definição de Rotas API
+
+<example>
+// routes/api.php
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\V1\UserController;
+
+Route::prefix('v1')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::apiResource('users', UserController::class);
+    });
+});
+</example>
+
+### Tratamento de Exceções
+
+<example>
+// app/Exceptions/Handler.php
+namespace App\Exceptions;
+
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Throwable;
+
+class Handler extends ExceptionHandler {
+    public function render($request, Throwable $exception) {
+        if ($request->expectsJson()) {
+            if ($exception instanceof ModelNotFoundException) {
+                return response()->json([
+                    'message' => 'Recurso não encontrado'
+                ], 404);
+            }
+            
+            if ($exception instanceof ValidationException) {
+                return response()->json([
+                    'message' => 'Os dados fornecidos são inválidos',
+                    'errors' => $exception->errors()
+                ], 422);
+            }
+            
+            if ($exception instanceof NotFoundHttpException) {
+                return response()->json([
+                    'message' => 'Endpoint não encontrado'
+                ], 404);
+            }
+        }
+        
+        return parent::render($request, $exception);
+    }
+}
+</example>
+
+### Exemplo Inválido - Controller com Muitas Responsabilidades
+
+<example type="invalid">
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+
+class UserController extends Controller {
+    public function index() {
+        // Regra de negócio no controller
+        $users = User::where('active', true)
+                    ->orderBy('name')
+                    ->paginate(10);
+        
+        return response()->json(['data' => $users]);
+    }
+    
+    public function store(Request $request) {
+        // Validação diretamente no controller
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:8',
+        ]);
+        
+        // Lógica de negócio e acesso direto ao modelo
+        $user = new User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->save();
+        
+        // Formatação da resposta sem Resource
+        return response()->json([
+            'message' => 'Usuário criado com sucesso',
+            'data' => $user
+        ], 201);
+    }
+}
+</example>
+
+### Exemplo Inválido - Sem Separação de Responsabilidades
+
+<example type="invalid">
+// Controller fazendo trabalho do Repository e Service
+public function update(Request $request, $id) {
+    $user = User::find($id);
+    
+    if (!$user) {
+        return response()->json(['message' => 'Usuário não encontrado'], 404);
+    }
+    
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email,' . $id,
+    ]);
+    
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
+    
+    // Lógica de negócio diretamente no controller
+    $user->name = $request->name;
+    $user->email = $request->email;
+    
+    if ($request->has('password')) {
+        $user->password = Hash::make($request->password);
+    }
+    
+    $user->save();
+    
+    // Preparação manual da resposta
+    return response()->json([
+        'message' => 'Usuário atualizado com sucesso',
+        'data' => $user
+    ]);
+}
+</example>
