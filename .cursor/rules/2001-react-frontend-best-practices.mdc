@@ -1,8 +1,8 @@
 ---
 description: USE ao desenvolver aplicações Frontend com React para garantir boas práticas de código, estrutura e performance
 globs: src/**/*.{js,jsx,ts,tsx}
-alwaysApply: false
 ---
+
 # Padrões de Desenvolvimento Frontend com React
 
 <version>1.0.0</version>
@@ -301,4 +301,4 @@ export function useTheme() {
     mocks.ts
   index.tsx
   App.tsx
-</example>
+</example> 
