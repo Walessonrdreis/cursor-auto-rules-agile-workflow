@@ -1,8 +1,8 @@
 ---
 description: USE ao desenvolver aplicações Backend com Laravel para garantir código limpo, manutenível e escalável baseado em princípios SOLID
 globs: **/*.php
-alwaysApply: false
 ---
+
 # Laravel Backend Best Practices
 
 <version>1.0.0</version>
@@ -407,4 +407,4 @@ public function update(Request $request, $id) {
         'data' => $user
     ]);
 }
-</example>
+</example> 
