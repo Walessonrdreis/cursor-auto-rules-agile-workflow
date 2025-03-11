@@ -1,0 +1,304 @@
+---
+description: USE ao desenvolver aplicações Frontend com React para garantir boas práticas de código, estrutura e performance
+globs: src/**/*.{js,jsx,ts,tsx}
+alwaysApply: false
+---
+# Padrões de Desenvolvimento Frontend com React
+
+<version>1.0.0</version>
+
+## Contexto
+- Esta regra deve ser aplicada em todos os projetos React
+- Contém boas práticas para organização de código, estrutura de projeto, otimização de performance e padrões de desenvolvimento
+- Deve ser revisada periodicamente para manter-se atualizada com novas versões e práticas do ecossistema React
+
+## Requisitos
+
+### Estrutura do Projeto
+- Utilize uma estrutura de diretórios consistente e organizada:
+  ```
+  /src
+    /assets          # Imagens, fontes e outros recursos estáticos
+    /components      # Componentes reutilizáveis
+      /ui            # Componentes de UI básicos (botões, inputs, etc)
+      /layout        # Componentes de estrutura (header, footer, etc)
+    /hooks           # Hooks personalizados
+    /pages           # Componentes de página
+    /contexts        # Context API para gerenciamento de estado global
+    /services        # Serviços de API, autenticação, etc
+    /utils           # Funções utilitárias
+    /styles          # Estilos globais e configurações de tema
+    /types           # Definições de tipos (para TypeScript)
+    /tests           # Configurações e utilitários de teste
+  ```
+- Limite a profundidade da estrutura de diretórios a no máximo 4 níveis para evitar importações complexas
+
+### Componentes
+- Use componentes funcionais com Hooks em vez de componentes de classe
+- Cada componente deve ter responsabilidade única e ser altamente coeso
+- Organize os arquivos de componentes com a seguinte estrutura:
+  1. Importações e constantes
+  2. Definição de tipos de props
+  3. Estado do componente
+  4. Outros hooks
+  5. Effects
+  6. Funções auxiliares
+  7. JSX (instrução de retorno)
+  8. JSX abstraído usado apenas neste arquivo
+- Utilize a nomenclatura PascalCase para componentes e camelCase para funções/hooks
+- Co-localize arquivos relacionados (componente, teste, estilo) quando possível
+
+<example>
+// Button.tsx - Bom exemplo de componente
+import React from 'react';
+import './Button.css';
+
+type ButtonProps = {
+  variant?: 'primary' | 'secondary';
+  onClick: () => void;
+  children: React.ReactNode;
+  disabled?: boolean;
+};
+
+export function Button({ 
+  variant = 'primary', 
+  onClick, 
+  children,
+  disabled = false
+}: ButtonProps) {
+  // Função auxiliar
+  const handleClick = () => {
+    if (!disabled) {
+      onClick();
+    }
+  };
+  
+  return (
+    <button 
+      className={`btn btn-${variant} ${disabled ? 'btn-disabled' : ''}`}
+      onClick={handleClick}
+      disabled={disabled}
+    >
+      {children}
+    </button>
+  );
+}
+</example>
+
+<example type="invalid">
+// Componente mal estruturado
+import React from 'react';
+
+export default class button extends React.Component {
+  render() {
+    return <button onClick={this.props.onClick}>{this.props.children}</button>
+  }
+}
+</example>
+
+### Estado e Props
+- Utilize o princípio de imutabilidade ao atualizar estados
+- Evite prop drilling (mais de 2 níveis); use Context API ou hooks personalizados
+- Extraia lógica de estado complexo para hooks personalizados reutilizáveis
+- Utilize memoização (useMemo, useCallback) para otimização de performance quando apropriado
+
+<example>
+// useFetch.ts - Hook personalizado para fetch de dados
+import { useState, useEffect } from 'react';
+
+export function useFetch<T>(url: string) {
+  const [data, setData] = useState<T | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const result = await response.json();
+        setData(result);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Erro desconhecido'));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [url]);
+
+  return { data, loading, error };
+}
+</example>
+
+### Performance
+- Evite renderizações desnecessárias usando React.memo para componentes que não mudam com frequência
+- Otimize dependências do useEffect para evitar loops infinitos ou atualizações desnecessárias
+- Implemente code splitting e lazy loading para componentes grandes ou rotas
+- Utilize ferramentas como React DevTools e Lighthouse para monitorar e otimizar o desempenho
+
+<example>
+// Implementação de code splitting com React.lazy
+import React, { Suspense, lazy } from 'react';
+
+const HeavyComponent = lazy(() => import('./HeavyComponent'));
+
+function App() {
+  return (
+    <div>
+      <Suspense fallback={<div>Carregando...</div>}>
+        <HeavyComponent />
+      </Suspense>
+    </div>
+  );
+}
+</example>
+
+### Acessibilidade
+- Utilize elementos semânticos do HTML5 (header, nav, main, section, etc)
+- Inclua rótulos e textos alternativos para elementos interativos e imagens
+- Garanta navegação adequada por teclado 
+- Implemente ARIA (Accessible Rich Internet Applications) quando necessário
+- Teste seu aplicativo com screen readers e ferramentas de verificação de acessibilidade
+
+### Testes
+- Escreva testes unitários para componentes e hooks
+- Implemente testes de integração para fluxos de interação de usuário
+- Prefira Testing Library sobre Enzyme para testes mais focados no comportamento do usuário
+- Siga a metodologia AAA (Arrange, Act, Assert) para estruturar testes
+
+<example>
+// Button.test.tsx - Teste de componente
+import { render, screen, fireEvent } from '@testing-library/react';
+import { Button } from './Button';
+
+describe('Button', () => {
+  test('renderiza corretamente', () => {
+    render(<Button onClick={() => {}}>Clique</Button>);
+    expect(screen.getByText('Clique')).toBeInTheDocument();
+  });
+
+  test('chama onClick quando clicado', () => {
+    const handleClick = jest.fn();
+    render(<Button onClick={handleClick}>Clique</Button>);
+    fireEvent.click(screen.getByText('Clique'));
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+
+  test('não chama onClick quando desabilitado', () => {
+    const handleClick = jest.fn();
+    render(<Button onClick={handleClick} disabled>Clique</Button>);
+    fireEvent.click(screen.getByText('Clique'));
+    expect(handleClick).not.toHaveBeenCalled();
+  });
+});
+</example>
+
+### Gerenciamento de Estado
+- Para aplicações pequenas, use o Context API do React
+- Para aplicações médias a grandes, considere Redux Toolkit, Zustand ou Jotai
+- Mantenha o estado o mais próximo possível de onde é usado
+- Prefira múltiplos contextos pequenos a um contexto monolítico
+
+<example>
+// ThemeContext.tsx - Exemplo de Context API
+import React, { createContext, useState, useContext } from 'react';
+
+type Theme = 'light' | 'dark';
+
+type ThemeContextType = {
+  theme: Theme;
+  toggleTheme: () => void;
+};
+
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState<Theme>('light');
+
+  const toggleTheme = () => {
+    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+  };
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useTheme deve ser usado dentro de um ThemeProvider');
+  }
+  return context;
+}
+</example>
+
+### Segurança
+- Nunca armazene informações sensíveis no estado do cliente ou em localStorage sem criptografia
+- Sanitize e valide todos os inputs de usuário
+- Implemente proteção contra ataques XSS (Cross-Site Scripting)
+- Use HTTPS para todas as requisições de API
+- Implemente autenticação e autorização adequadas
+
+## Exemplos de Projetos
+
+<example>
+# Estrutura de um projeto React com TypeScript usando as melhores práticas
+
+/src
+  /assets
+    /images
+    /icons
+    /fonts
+  /components
+    /ui
+      /Button
+        Button.tsx
+        Button.test.tsx
+        Button.module.css
+      /Input
+        Input.tsx
+        Input.test.tsx
+        Input.module.css
+    /layout
+      /Header
+      /Footer
+      /Sidebar
+  /hooks
+    useFetch.ts
+    useForm.ts
+    useLocalStorage.ts
+  /pages
+    /Home
+    /Profile
+    /Auth
+      /Login
+      /Register
+  /contexts
+    ThemeContext.tsx
+    AuthContext.tsx
+  /services
+    api.ts
+    auth.ts
+  /utils
+    formatters.ts
+    validators.ts
+  /styles
+    global.css
+    variables.css
+    themes.ts
+  /types
+    index.ts
+  /tests
+    setup.ts
+    mocks.ts
+  index.tsx
+  App.tsx
+</example>
