@@ -1,6 +1,136 @@
 ---
-description: 
-globs: 
-alwaysApply: false
+description: USE when writing TypeScript code to ensure consistent, meaningful, and appropriate code commenting practices
+globs: **/*.{ts,tsx}
 ---
- 
+
+# TypeScript Commenting Standards
+
+<version>1.0.0</version>
+
+## Context
+- Aplicável a todos os arquivos TypeScript/TSX
+- Fornece diretrizes sobre quando e como comentar código adequadamente
+- Equilibra a quantidade ideal de comentários sem exageros ou escassez
+
+## Requirements
+
+### Princípios Gerais
+- Comentários devem explicar "por quê" em vez de "o quê" (o código já mostra o que faz)
+- Código bem escrito deve ser autoexplicativo sempre que possível
+- Comentários não devem substituir código claro e legível
+- Evite comentários quando nomes de variáveis, funções e tipos já expressarem claramente a intenção
+
+### JSDoc / TSDoc
+- Use sintaxe TSDoc (`/** ... */`) para documentar interfaces, tipos, classes, funções e métodos públicos
+- Documente todos os parâmetros, valores de retorno e exceções lançadas em APIs públicas
+- Use `@param`, `@returns`, `@throws`, `@example` e outras tags TSDoc quando apropriado
+- Para tipos genéricos, use `@typeParam` para documentar parâmetros de tipo
+
+### Comentários Comuns
+- Use `//` para comentários de linha única
+- Coloque um espaço após `//` para melhorar a legibilidade: `// Comentário`
+- Posicione comentários em linha separada acima do código que está sendo comentado
+- Adicione uma linha em branco antes do comentário, exceto quando for a primeira linha de um bloco
+
+### Quando Comentar
+- Documente lógica de negócios complexa ou não intuitiva
+- Explique algoritmos complexos ou otimizações específicas
+- Documente decisões de design importantes ou não óbvias
+- Explique solução para casos extremos ou comportamentos inesperados
+- Forneça contexto para correções de bugs ou soluções alternativas temporárias
+
+### Quando NÃO Comentar
+- Não comente o óbvio (que pode ser entendido apenas lendo o código)
+- Não deixe código comentado no repositório (use controle de versão)
+- Não duplique a informação já expressa no nome das variáveis/funções
+- Evite comentários que ficam desatualizados rapidamente
+- Não use comentários para compensar código mal escrito (refatore o código)
+
+### Comentários Especiais
+- Use `// TODO: descrição` para marcar melhorias futuras
+- Use `// FIXME: descrição` para indicar código problemático que precisa ser corrigido
+- Use `// HACK: descrição` para soluções temporárias com explicação da limitação
+- Evite comentários de marcadores posicionais ou divisores (`//////////////////`)
+
+## Examples
+
+<example>
+// Código autoexplicativo sem necessidade de comentários
+const isActive = user.lastLoginDate > thirtyDaysAgo;
+if (isActive) {
+  sendWelcomeBackEmail(user.email);
+}
+</example>
+
+<example>
+// Bom comentário explicando o "porquê" de uma implementação específica
+// Precisamos verificar nulos explicitamente aqui porque a API externa
+// às vezes retorna null em vez de um array vazio para usuários sem permissões
+const permissions = userResponse.permissions || [];
+</example>
+
+<example>
+/**
+ * Calcula o montante final após juros compostos.
+ * 
+ * @param principal - O valor inicial investido
+ * @param rate - Taxa de juros anual (em decimal, ex: 0.05 para 5%)
+ * @param time - Período de tempo em anos
+ * @param frequency - Número de vezes que os juros são compostos por ano
+ * @returns O montante final após o período de juros compostos
+ * 
+ * @example
+ * // Retorna aproximadamente 110.25
+ * calculateCompoundInterest(100, 0.05, 2, 1);
+ */
+function calculateCompoundInterest(
+  principal: number,
+  rate: number,
+  time: number,
+  frequency: number = 1
+): number {
+  return principal * Math.pow(1 + rate / frequency, frequency * time);
+}
+</example>
+
+<example type="invalid">
+// Este comentário é redundante e desnecessário
+// Incrementa o contador
+counter++;
+</example>
+
+<example type="invalid">
+/**
+ * Função que soma dois números.
+ * @param a O primeiro número
+ * @param b O segundo número
+ * @returns A soma dos dois números
+ */
+// Esta função simples não precisa de documentação tão extensa
+function add(a: number, b: number): number {
+  return a + b;
+}
+</example>
+
+<example type="invalid">
+// Comentário desatualizado que não reflete mais o código
+// Filtra apenas usuários ativos
+// (Na verdade, agora filtra todos os usuários com email verificado)
+const verifiedUsers = users.filter(user => user.emailVerified);
+</example>
+
+<example>
+// Bom uso de comentário para explicar código complexo ou não intuitivo
+// Usamos Levenshtein distance para encontrar produtos similares
+// quando o usuário comete pequenos erros de digitação na busca
+const similarProducts = findSimilarProducts(searchTerm, allProducts);
+</example>
+
+<example>
+// Uso apropriado de TODOs
+// TODO: Refatorar esta lógica para usar o novo sistema de permissões
+// quando a versão 2.0 da API for lançada (previsto para Q3 2024)
+if (hasLegacyAdminRole(user) || hasEditorPermission(user)) {
+  allowAccess();
+}
+</example> 
