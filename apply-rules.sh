@@ -27,9 +27,16 @@ fi
 # Create .cursor/rules directory if it doesn't exist
 mkdir -p "$TARGET_DIR/.cursor/rules"
 
+# Create .cursor/templates directory if it doesn't exist
+mkdir -p "$TARGET_DIR/.cursor/templates"
+
 # Copy core rule files
 echo "📦 Copying core rule files..."
 cp -n .cursor/rules/*.mdc "$TARGET_DIR/.cursor/rules/"
+
+# Copy template files
+echo "📦 Copying template files..."
+cp -r .cursor/templates/* "$TARGET_DIR/.cursor/templates/"
 
 # Create docs directory if it doesn't exist
 mkdir -p "$TARGET_DIR/docs"
@@ -105,11 +112,21 @@ else
     echo -e "# Project notes and templates\nxnotes/" > "$TARGET_DIR/.cursorignore"
 fi
 
+# Create or update .cursorindexingignore
+if [ -f "$TARGET_DIR/.cursorindexingignore" ]; then
+    if ! grep -q "^\.cursor/templates/" "$TARGET_DIR/.cursorindexingignore"; then
+        echo -e "\n# Templates - accessible but not indexed\n.cursor/templates/" >> "$TARGET_DIR/.cursorindexingignore"
+    fi
+else
+    echo -e "# Templates - accessible but not indexed\n.cursor/templates/" > "$TARGET_DIR/.cursorindexingignore"
+fi
+
 echo "✨ Deployment Complete!"
 echo "📁 Core rules: $TARGET_DIR/.cursor/rules/"
+echo "📁 Templates: $TARGET_DIR/.cursor/templates/"
 echo "📝 Notepad templates: $TARGET_DIR/xnotes/"
 echo "📄 Documentation: $TARGET_DIR/docs/workflow-rules.md"
-echo "🔒 Updated .gitignore and .cursorignore"
+echo "🔒 Updated .gitignore, .cursorignore, and .cursorindexingignore"
 echo ""
 echo "Next steps:"
 echo "1. Review the documentation in docs/workflow-rules.md"

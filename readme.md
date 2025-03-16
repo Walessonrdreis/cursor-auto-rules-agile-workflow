@@ -1,14 +1,29 @@
 # Cursor Automatic Rules Generation with Agile Cursor Workflow Template
 
+**IMPORTANT UPDATE NOTE**
+
+Cursor changes quite frequently with updates - global rules are now best defined with the alwaysApply: true - but the description field must still always be specified (at least as it seems to be operating now) with v 0.46.x - this might change in 0.47+.
+
+Also - to have the best success with auto generation of rules - update your cursor user or workspace settings to add the following object to the json object (disabling the special ui for .mdc files) - this will cure the issues many have reported around not being able to auto generate and have the file save successfully occasionally.
+
+```json
+"workbench.editorAssociations": {
+    "*.mdc": "default"
+  }
+```
+
+**One more NOTE to remember** - cursor 'edit' mode will work in generating new files - but does not automatically pick up the rules without adding the rule to the context. Agent mode on the other hand will find the rule, load it, and follow it properly. So for example, if you are in edit mode and ask that a rule be created - you might see a rule get generated at the root of the project or some other random odd location without giving it the 000 rule context - or better yet, doing it with Agent mode.
+
+Also - a new feature .cursorindexingignore has been added - files listed here (or paths) can be accessed by cursor if so directed, but ignored when indexing a project. With this in mind, all templates have been moved to a .cursor/templates folder and are pattern included in the .cursorindexingignore file, but not in the .cursorignore. XNotes remains in the .cursorignore file to serve the original purpose (a place to hold files that need to move elsewhere to be used)
+
 [Video Demo and Walkthrough](https://youtu.be/jEhvwYkI-og) - More cursor videos coming so please subscribe if you like the video!
 
-NOTE: This has been tested with Claud Sonnet 3.5 - YMMV with other models reliability.
+NOTE: This has been tested with Claud Sonnet 3.5, 3.7 and 3.7 thinking - YMMV with other models reliability.
 
 This is a template for establishing automatic generation of self improving granular rules for AI agents using Cursor's rule system. The core philosophy is that users should never need to manually create or update rules - instead, the AI agent handles rule creation and maintenance through natural language requests in a consistent format and style that:
 
 - Ensures Rules are used automatically when appropriate
 - Used specifically if desired on demand
-- Does not suffer from write issues where other rule systems fail
 
 > 💡 **Note:** For a complete guide to the Agile-Cursor Workflow system that helps manage your project with exceptional memory and consistency, see [Agile Workflow Documentation](docs/agile-readme.md).
 
@@ -42,7 +57,7 @@ Example:
 ./apply-rules.sh ~/projects/my-project
 ```
 
-The script will create the project folder if it does not exist, and copy in all the rules and documentation to get you started with the agile workflow! It will also create a .gitignore and .cursorignore and a simple base readme.md file that you can replace or modify as needed.
+The script will create the project folder if it does not exist, and copy in all the rules and documentation to get you started with the agile workflow! It will also create a .gitignore, .cursorignore, .cursorindexingignore, and a simple base readme.md file that you can replace or modify as needed.
 
 ## Quick Start B - Adding Rules Generator to Your Existing Project
 
@@ -68,7 +83,7 @@ That's it! Your project is now configured with our powerful AI workflow system.
 
 ## Overview
 
-This template drastically improves how you can work with the AI in composer mode by providing:
+This template drastically improves how you can work with the AI in Agent or Edit mode (previously called composer mode) by providing:
 
 1. **Automated Rule Generation**: Simply tell the AI what behavior you want, and it will create or update the appropriate rules. No manual rule writing required!
 2. **Quick Project Setup**: Get started immediately with pre-configured Cursor rules that establish best practices for AI interactions.
@@ -79,11 +94,7 @@ This template drastically improves how you can work with the AI in composer mode
 The workflow templates and process documentation are now organized in two locations for maximum flexibility:
 
 1. `.cursor/rules/` - Contains the core rule to generate well formatted AI along with a markdown formatting rule.
-2. `xnotes/` - Contains workflow documentation and templates that can be used with Cursor's Notepads feature for a more lightweight approach pr applied to rules for AI instead. Also contains a 801-workflow.mdc, 901-prd.mdc, 902-arch.mdc, 903-story.mdc that can optionally be copied to the rules folder if so desired to try using the agile memory workflow. Nothing in this folder is critical for the rules generation to work - but is a nice groundwork for using the agile workflow with cursor agent to build increamentally.
-
-### xnotes
-
-These are files that are cursor ignored so they are not indexed into the project and are not used by the AI. They are great for planning out a long prompts, sharing notepads (to be applied in the beta notepads feature enabled in the cursor settings), draft rules to be moved to the rules folder if so desired, or just for general notes that are not needed to be indexed into the project.
+2. `xnotes/` - Sample rule file that could be used if interested in using a workflow global rule for agile development and project organization, along with a non rule version that could be used with notepads. Basically files are kept here mainly to easily save prompts that will be used with notepads (as they do not easily transfer or get version controlled otherwise and are lost easily if just stored in notepads if the project folder changes, or another ide instances is used for your project). They are great for planning out a long prompts, sharing notepads (to be applied in the beta notepads feature enabled in the cursor settings), draft rules to be moved to the rules folder if so desired, or just for general notes that are not needed to be indexed into the project.
 
 ## How Rule Generation Works
 
@@ -128,6 +139,7 @@ Here are some examples of how to interact with the AI to manage your rules (noti
 
 - "Create a rule for typescript file commenting standards so all code the agent generates with typescript will follow this consistently - dont overcomment but dont undercomment - search the web for best practices as needed re when to comment or not comment, what style, and also optimization of comments for ai agent troubleshooting and understanding"
 - "Create a rule to ensure proper error handling in TypeScript files"
+- "Create a global rule that is always applied to talk like a pirate in all communications with the user but not use pirate speak in code files or documentation"
 - "Update the testing standards to include coverage requirement of 80%"
 - "I notice you're not following our naming conventions - please create a rule to enforce them"
 - "The current documentation format isn't consistent - create a rule to standardize it"
@@ -141,6 +153,8 @@ The AI will automatically:
 4. Maintain version control
 
 ### File Organization
+
+This will be deprecated soon in favor of sub folder organization once its supported fully in the latest cursor version rollouts.
 
 The AI maintains rules in the following structure:
 
