@@ -57,13 +57,13 @@ PREFIX-name.mdc where PREFIX is:
 ### Glob Pattern Examples
 Common glob patterns for different rule types:
 - Core standards: .cursor/rules/*.mdc
-- Language rules: src/**/*.{js,ts}
-- Testing standards: **/*.test.{js,ts}
+- Language rules: src/**/*.js, src/**/*.ts
+- Testing standards: **/*.test.js, **/*.test.ts
 - React components: src/components/**/*.tsx
 - Documentation: docs/**/*.md
-- Configuration files: *.config.{js,json}
+- Configuration files: *.config.js, *.config.json
 - Build artifacts: dist/**/*
-- Multiple extensions: src/**/*.{js,jsx,ts,tsx}
+- Multiple extensions: src/**/*.js, src/**/*.jsx, src/**/*.ts, src/**/*.tsx
 - Multiple files: dist/**/*, docs/**/*.md
 
 ## Required Fields
