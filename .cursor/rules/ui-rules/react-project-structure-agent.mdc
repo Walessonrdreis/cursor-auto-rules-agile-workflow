@@ -1,0 +1,163 @@
+---
+description: Esta regra deve ser aplicada quando (1) Criando um novo projeto React, (2) Reorganizando a estrutura de pastas de um projeto existente, (3) Adicionando novos módulos ou funcionalidades a um projeto React, (4) Definindo padrões de nomenclatura e organização de arquivos. A regra garante uma estrutura de projeto consistente, escalável e de fácil manutenção, facilitando a navegação pelo código, a localização de recursos e a adição de novas funcionalidades.
+globs: 
+alwaysApply: false
+---
+
+# Estrutura de Projetos React
+
+## Regras Críticas
+
+### Estrutura de Diretórios Principal
+- Organize o projeto em módulos por domínio/funcionalidade, não por tipo de arquivo
+- Use a estrutura padrão:
+  - `/src`: Todo o código fonte
+  - `/public`: Recursos estáticos acessíveis publicamente
+  - `/docs`: Documentação do projeto
+  - `/tests`: Testes de integração e end-to-end (testes unitários ficam junto aos componentes)
+
+### Organização do Diretório `/src`
+- `/src/assets`: Recursos estáticos (imagens, fontes, ícones)
+- `/src/components`: Componentes reutilizáveis (seguindo Atomic Design)
+- `/src/features` ou `/src/modules`: Código organizado por funcionalidade
+- `/src/hooks`: Hooks personalizados globais
+- `/src/context`: Contextos React globais
+- `/src/services`: Serviços e chamadas de API
+- `/src/utils`: Funções utilitárias
+- `/src/types`: Tipos e interfaces TypeScript globais
+- `/src/styles`: Estilos globais, variáveis, mixins
+- `/src/routes`: Configuração de rotas
+- `/src/config`: Configurações da aplicação
+- `/src/constants`: Constantes globais
+- `/src/store`: Gerenciamento de estado global (Redux, Zustand, etc.)
+
+### Estrutura Atômica para Componentes
+- `/src/components/atoms`: Componentes básicos indivisíveis (Button, Input, Label, Text)
+- `/src/components/molecules`: Componentes compostos de átomos (Form Field, Card, SearchBar)
+- `/src/components/organisms`: Componentes complexos compostos de moléculas (Navbar, UserProfile, ProductList)
+- `/src/components/templates`: Layouts que organizam organismos (Dashboard Layout, Auth Layout)
+- `/src/components/pages`: Componentes que representam páginas completas
+
+### Estrutura por Funcionalidade
+- Cada funcionalidade/módulo em `/src/features` deve seguir o mesmo padrão:
+  - `/features/featureA/components`: Componentes específicos da funcionalidade
+  - `/features/featureA/hooks`: Hooks específicos
+  - `/features/featureA/services`: Serviços de API específicos
+  - `/features/featureA/types`: Tipos e interfaces
+  - `/features/featureA/utils`: Funções utilitárias
+  - `/features/featureA/context`: Contextos específicos
+  - `/features/featureA/store`: Estado específico da funcionalidade
+
+### Nomenclatura
+- Use `PascalCase` para componentes React e seus arquivos
+- Use `camelCase` para hooks, utilities e outros arquivos não-componentes
+- Arquivos de componentes devem ter o sufixo `.jsx` ou `.tsx` (com TypeScript)
+- Arquivos de teste devem ter o sufixo `.test.jsx` ou `.test.tsx`
+- Arquivos de estilo relacionados a componentes devem usar `.module.css`, `.module.scss`
+
+### Práticas de Importação
+- Crie arquivos `index.ts` em cada diretório para facilitar importações (barrel files)
+- Use paths absolutos configurados no `tsconfig.json` em vez de caminhos relativos profundos
+- Agrupe importações: bibliotecas externas primeiro, seguidas por componentes, hooks, utils, etc.
+
+### Gerenciamento de Testes
+- Arquivos de teste devem estar junto ao código que testam: `Component.tsx` e `Component.test.tsx`
+- Organize mocks em `/src/__mocks__`
+- Testes de integração e e2e devem estar em `/tests`
+
+### Documentação
+- Cada componente reutilizável deve ter documentação com Storybook
+- Arquivos README.md em cada diretório principal explicando seu propósito
+- Componentes complexos devem incluir comentários JSDoc descrevendo props e funcionamento
+
+## Exemplos
+
+<example>
+// Estrutura de diretórios de um projeto React bem organizado
+project-root/
+├── .github/                  # GitHub Actions, templates de PR/issues
+├── public/                   # Recursos públicos estáticos
+│   ├── favicon.ico
+│   ├── index.html
+│   └── manifest.json
+├── src/                      # Código fonte
+│   ├── assets/               # Recursos estáticos
+│   │   ├── images/
+│   │   └── icons/
+│   ├── components/           # Componentes reutilizáveis
+│   │   ├── atoms/
+│   │   │   ├── Button/
+│   │   │   │   ├── Button.tsx
+│   │   │   │   ├── Button.test.tsx
+│   │   │   │   ├── Button.module.scss
+│   │   │   │   ├── Button.stories.tsx
+│   │   │   │   └── index.ts
+│   │   ├── molecules/
+│   │   ├── organisms/
+│   │   └── templates/
+│   ├── features/             # Funcionalidades organizadas por domínio
+│   │   ├── authentication/
+│   │   │   ├── components/
+│   │   │   ├── hooks/
+│   │   │   ├── services/
+│   │   │   ├── types/
+│   │   │   └── index.ts
+│   │   └── products/
+│   │       ├── components/
+│   │       ├── hooks/
+│   │       ├── services/
+│   │       ├── types/
+│   │       └── index.ts
+│   ├── hooks/                # Hooks globais
+│   ├── services/             # Serviços de API global
+│   │   ├── api.ts
+│   │   └── endpoints.ts
+│   ├── utils/                # Funções utilitárias
+│   ├── types/                # TypeScript types globais
+│   ├── routes/               # Configuração de rotas
+│   │   ├── PrivateRoute.tsx
+│   │   ├── routes.tsx
+│   │   └── index.ts
+│   ├── store/                # Estado global
+│   ├── styles/               # Estilos globais
+│   │   ├── global.scss
+│   │   └── variables.scss
+│   ├── App.tsx
+│   └── index.tsx
+├── tests/                    # Testes e2e, integração
+├── .eslintrc.js              # Configuração ESLint
+├── .prettierrc               # Configuração Prettier
+├── tsconfig.json             # Configuração TypeScript
+├── package.json
+└── README.md
+</example>
+
+<example type="invalid">
+// Estrutura de diretórios desorganizada
+project-root/
+├── public/
+├── src/
+│   ├── components/           # Mistura de componentes sem organização clara
+│   │   ├── Button.js
+│   │   ├── Dashboard.js      # Deveria estar em pages ou templates
+│   │   ├── Header.js
+│   │   └── UserList.js       # Componente específico de funcionalidade misturado com componentes genéricos
+│   ├── pages/                # Páginas misturadas com lógica de API e estado
+│   │   ├── HomePage.js
+│   │   ├── LoginPage.js
+│   │   └── api.js            # Código de API misturado com páginas
+│   ├── redux/                # Código de estado separado por tecnologia, não por funcionalidade
+│   │   ├── actions.js        # Todas as actions em um arquivo
+│   │   ├── reducers.js       # Todos os reducers em um arquivo
+│   │   └── store.js
+│   ├── tests/                # Testes separados do código que testam
+│   │   ├── Button.test.js
+│   │   └── HomePage.test.js
+│   ├── utils.js              # Arquivo único com todas as utilidades
+│   ├── constants.js          # Todas as constantes em um único arquivo
+│   ├── types.js              # Todos os tipos em um único arquivo
+│   ├── App.js
+│   └── index.js
+├── package.json
+└── README.md
+</example> 

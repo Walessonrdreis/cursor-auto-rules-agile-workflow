@@ -1,0 +1,248 @@
+---
+description: Esta regra deve ser aplicada quando (1) Criando hooks personalizados em React, (2) Refatorando componentes para extrair lógica em hooks, (3) Revisando código com hooks personalizados, (4) Adicionando funcionalidades que envolvem lógica reutilizável. A regra garante que os hooks personalizados sejam escritos seguindo boas práticas, sejam reutilizáveis, mantenham o princípio de responsabilidade única e sejam fáceis de testar.
+globs: 
+alwaysApply: false
+---
+
+# Hooks Personalizados em React
+
+## Regras Críticas
+
+### Responsabilidade Única
+- Cada hook deve ter uma única responsabilidade bem definida
+- Extraia funcionalidades específicas em hooks menores quando necessário
+- Nomeie hooks de forma clara indicando sua função (ex: `useFormValidation`, `useFetchData`)
+
+### Composição de Hooks
+- Componha hooks complexos usando hooks mais simples
+- Siga o padrão de composição para reutilizar lógica entre hooks
+- Extraia hooks utilitários para operações comuns (ex: `useLocalStorage`, `useDebounce`)
+
+### Regras de Hooks do React
+- Sempre nomeie hooks começando com "use" (ex: `useSomething`)
+- Chame hooks apenas no nível superior de componentes ou outros hooks
+- Nunca chame hooks dentro de loops, condições ou funções aninhadas
+- Garanta que todas as dependências em `useEffect`, `useMemo` e `useCallback` sejam declaradas
+
+### Gerenciamento de Estado
+- Prefira `useReducer` em vez de múltiplos `useState` para estados complexos
+- Organize estados relacionados em um único hook personalizado
+- Use Context API com hooks para estados globais ou compartilhados entre componentes
+- Considere bibliotecas externas de gerenciamento de estado apenas quando necessário
+
+### Performance
+- Utilize `useMemo` e `useCallback` para memoização quando apropriado
+- Evite recálculos desnecessários em hooks
+- Otimize dependências em `useEffect` para evitar execuções desnecessárias
+- Considere a técnica de debounce/throttle para operações intensivas
+
+### Tratamento de Efeitos Colaterais
+- Organize efeitos colaterais em hooks separados por domínio
+- Use funções de cleanup em `useEffect` para evitar vazamentos de memória
+- Separe lógica síncrona de assíncrona em hooks diferentes ou seções distintas
+
+### Testabilidade
+- Projete hooks para serem facilmente testáveis
+- Use injeção de dependências para permitir mock de dependências externas
+- Crie hooks pequenos com retornos claros para facilitar testes unitários
+
+### Interface do Hook
+- Mantenha uma API clara e consistente para seus hooks 
+- Retorne objetos nomeados em vez de arrays (exceto para casos simples)
+- Documente as entradas e saídas de cada hook com comentários JSDoc
+- Use TypeScript para definir tipos claros de parâmetros e retornos
+
+### Organização dos Hooks
+- Coloque hooks globais em `/src/hooks/`
+- Coloque hooks específicos de funcionalidade em `/src/features/[feature]/hooks/`
+- Use um arquivo por hook para facilitar a manutenção
+- Crie barrel files (`index.ts`) para exportar múltiplos hooks de um diretório
+
+## Exemplos
+
+<example>
+// useApiRequest.ts - Hook bem estruturado com responsabilidade única e boa interface
+import { useState, useEffect, useCallback } from 'react';
+import { ApiError, ApiResponse } from '../types';
+
+interface UseApiRequestOptions<T> {
+  url: string;
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  body?: object;
+  headers?: Record<string, string>;
+  initialData?: T;
+  onSuccess?: (data: T) => void;
+  onError?: (error: ApiError) => void;
+  immediate?: boolean;
+}
+
+interface UseApiRequestResult<T> {
+  data: T | null;
+  isLoading: boolean;
+  error: ApiError | null;
+  execute: (overrideOptions?: Partial<UseApiRequestOptions<T>>) => Promise<void>;
+  reset: () => void;
+}
+
+export function useApiRequest<T>({
+  url,
+  method = 'GET',
+  body,
+  headers,
+  initialData = null,
+  onSuccess,
+  onError,
+  immediate = true,
+}: UseApiRequestOptions<T>): UseApiRequestResult<T> {
+  const [data, setData] = useState<T | null>(initialData);
+  const [isLoading, setIsLoading] = useState<boolean>(immediate);
+  const [error, setError] = useState<ApiError | null>(null);
+  
+  const execute = useCallback(async (overrideOptions?: Partial<UseApiRequestOptions<T>>) => {
+    const options = { ...{ url, method, body, headers }, ...overrideOptions };
+    
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const response = await fetch(options.url, {
+        method: options.method,
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        ...(options.body ? { body: JSON.stringify(options.body) } : {}),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      const responseData: T = await response.json();
+      setData(responseData);
+      onSuccess?.(responseData);
+      return responseData;
+    } catch (err) {
+      const apiError = err instanceof Error 
+        ? { message: err.message, status: 0 } 
+        : { message: 'Unknown error', status: 0 };
+      
+      setError(apiError);
+      onError?.(apiError);
+      throw apiError;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [url, method, body, headers, onSuccess, onError]);
+  
+  const reset = useCallback(() => {
+    setData(initialData);
+    setError(null);
+    setIsLoading(false);
+  }, [initialData]);
+  
+  useEffect(() => {
+    if (immediate) {
+      execute();
+    }
+    // O hook deve executar apenas uma vez se immediate=true
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  
+  return { data, isLoading, error, execute, reset };
+}
+</example>
+
+<example type="invalid">
+// Hook mal estruturado com múltiplas responsabilidades e má utilização das regras de hooks
+import React, { useState, useEffect } from 'react';
+
+// Múltiplas responsabilidades em um único hook: autenticação, gerenciamento de produtos e carrinho
+export function useAppLogic() {
+  // Estado demais em um único hook
+  const [user, setUser] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [cart, setCart] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  // Hook dentro de condição - violação das regras de hooks
+  if (isLoggedIn) {
+    useEffect(() => {
+      document.title = `Bem-vindo, ${user.name}`;
+    }, [user]);
+  }
+  
+  // Múltiplos efeitos não relacionados em um único hook
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        
+        // Fetch user
+        const userResponse = await fetch('/api/user');
+        const userData = await userResponse.json();
+        setUser(userData);
+        setIsLoggedIn(true);
+        
+        // Fetch products no mesmo useEffect
+        const productsResponse = await fetch('/api/products');
+        const productsData = await productsResponse.json();
+        setProducts(productsData);
+      } catch (err) {
+        setError(err.message);
+        setIsLoggedIn(false);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchData();
+    
+    // Limpeza inadequada
+    return () => {
+      console.log('unmounting component');
+      // Falta cancelar requisições pendentes
+    };
+  }, []); // Dependências incompletas
+  
+  // Várias funções não relacionadas em um único hook
+  function login(username, password) {
+    // Implementação de login
+  }
+  
+  function logout() {
+    // Implementação de logout
+  }
+  
+  function addToCart(product) {
+    // Adicionar ao carrinho
+    setCart([...cart, product]);
+  }
+  
+  function removeFromCart(productId) {
+    // Remover do carrinho
+    setCart(cart.filter(item => item.id !== productId));
+  }
+  
+  function checkout() {
+    // Processar checkout
+  }
+  
+  // Retorna muitas coisas não relacionadas
+  return {
+    user,
+    isLoggedIn,
+    products,
+    cart,
+    loading,
+    error,
+    login,
+    logout,
+    addToCart,
+    removeFromCart,
+    checkout
+  };
+}
+</example> 

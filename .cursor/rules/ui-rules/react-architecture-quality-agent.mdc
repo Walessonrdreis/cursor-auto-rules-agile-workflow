@@ -1,0 +1,199 @@
+---
+description: Esta regra deve ser aplicada sempre que: (1) Planejando novos componentes ou features React, (2) Estruturando a arquitetura de um projeto React, (3) Refatorando código React existente, (4) Revisando código React para melhorias, (5) Tomando decisões arquiteturais que envolvam componentes e lógica React. A regra garante que o código siga princípios SOLID, Clean Code e outras boas práticas, resultando em aplicações mais fáceis de manter, testar e expandir. É particularmente importante ao lidar com componentes UI, gerenciamento de estado, lógica de negócios e integração com APIs.
+globs: 
+alwaysApply: false
+---
+
+# Arquitetura React com Princípios SOLID e Clean Code
+
+## Regras Críticas
+
+### Estrutura de Diretórios
+- Organize o projeto em módulos por funcionalidade, não por tipo de arquivo
+- Utilize a estrutura Atomic Design para componentes (atoms, molecules, organisms, templates, pages)
+- Separe claramente componentes de UI da lógica de negócios
+- Mantenha arquivos de teste junto aos componentes que estão testando
+
+### Responsabilidade Única (S - SOLID)
+- Cada componente deve ter uma única responsabilidade
+- Limite cada arquivo a no máximo 250-300 linhas de código
+- Extraia lógica complexa para hooks personalizados
+- Separe a lógica de renderização, de estado e de efeitos colaterais
+
+### Open/Closed Principle (O - SOLID)
+- Projete componentes para serem extensíveis sem modificação
+- Use composição de componentes em vez de herança
+- Implemente patterns como Render Props e Component Composition para extensibilidade
+
+### Liskov Substitution (L - SOLID)
+- Garanta que componentes derivados possam substituir seus tipos base
+- Mantenha consistência nas propriedades (props) entre componentes relacionados
+- Use TypeScript para definir interfaces claras e consistentes
+
+### Interface Segregation (I - SOLID)
+- Crie interfaces de props pequenas e específicas
+- Evite props booleanas; prefira enums para estados múltiplos
+- Use desestruturação para tornar explícito o que um componente necessita
+
+### Dependency Inversion (D - SOLID)
+- Dependa de abstrações, não de implementações concretas
+- Use Context API ou bibliotecas de gerenciamento de estado para injeção de dependências
+- Implemente patterns como Provider para inversão de controle
+
+### Clean Code
+- Nomeie variáveis e componentes de forma descritiva e consistente
+- Limite a profundidade de aninhamento de componentes (máx. 3 níveis)
+- Prefira funções pequenas e com propósito único
+- Use comentários apenas para explicar "por quê", não "o quê" ou "como"
+
+### Gerenciamento de Estado
+- Mantenha o estado o mais local possível
+- Use ferramentas apropriadas para diferentes tipos de estado (useState, useReducer, Redux, Zustand)
+- Separe estado de UI do estado da aplicação
+- Implemente estratégias de memoização (useMemo, useCallback) onde apropriado
+
+### Performance
+- Evite re-renderizações desnecessárias usando React.memo e hooks de memoização
+- Implemente lazy loading para componentes e rotas
+- Otimize o uso de useEffect com dependências corretas
+- Use ferramentas como Lighthouse e React DevTools para monitorar performance
+
+### Arquivos e Módulos
+- Cada arquivo deve exportar apenas um componente ou hook principal
+- Separe lógica de API em serviços reutilizáveis
+- Implemente interfaces para tipagem forte entre camadas
+- Crie barrel files (index.ts) para simplificar importações
+
+## Exemplos
+
+<example>
+// Componente React com Responsabilidade Única
+// src/features/products/components/ProductCard.tsx
+import React from 'react';
+import { useProductActions } from '../hooks/useProductActions';
+import { PriceTag } from 'components/atoms/PriceTag';
+import { Button } from 'components/atoms/Button';
+import type { Product } from '../types';
+
+interface ProductCardProps {
+  product: Product;
+  layout?: 'grid' | 'list';
+}
+
+export const ProductCard: React.FC<ProductCardProps> = ({ 
+  product,
+  layout = 'grid'
+}) => {
+  const { addToCart, isLoading } = useProductActions(product.id);
+  
+  return (
+    <div className={`product-card product-card--${layout}`}>
+      <img src={product.imageUrl} alt={product.name} />
+      <h3>{product.name}</h3>
+      <PriceTag value={product.price} discount={product.discount} />
+      <Button 
+        onClick={addToCart} 
+        isLoading={isLoading}
+        aria-label={`Adicionar ${product.name} ao carrinho`}
+      >
+        Adicionar ao carrinho
+      </Button>
+    </div>
+  );
+};
+</example>
+
+<example type="invalid">
+// Componente com múltiplas responsabilidades
+// App.jsx
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+function App() {
+  const [products, setProducts] = useState([]);
+  const [cart, setCart] = useState([]);
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Fetch products
+  useEffect(() => {
+    setIsLoading(true);
+    axios.get('/api/products')
+      .then(res => {
+        setProducts(res.data);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        setError(err.message);
+        setIsLoading(false);
+      });
+  }, []);
+
+  // Login function
+  const login = (username, password) => {
+    axios.post('/api/login', { username, password })
+      .then(res => setUser(res.data))
+      .catch(err => setError(err.message));
+  };
+
+  // Add to cart function
+  const addToCart = (product) => {
+    setCart([...cart, product]);
+    // Update database
+    axios.post('/api/cart', { productId: product.id })
+      .catch(err => setError(err.message));
+  };
+
+  // Render products, cart, login form, and errors all in one component
+  return (
+    <div>
+      {isLoading && <p>Loading...</p>}
+      {error && <p>Error: {error}</p>}
+      
+      {!user ? (
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          login(e.target.username.value, e.target.password.value);
+        }}>
+          <input name="username" placeholder="Username" />
+          <input name="password" type="password" placeholder="Password" />
+          <button type="submit">Login</button>
+        </form>
+      ) : (
+        <div>
+          <h2>Welcome, {user.name}</h2>
+          <button onClick={() => setUser(null)}>Logout</button>
+        </div>
+      )}
+      
+      <div className="products">
+        <h2>Products</h2>
+        {products.map(product => (
+          <div key={product.id} className="product">
+            <h3>{product.name}</h3>
+            <p>${product.price}</p>
+            <button onClick={() => addToCart(product)}>Add to Cart</button>
+          </div>
+        ))}
+      </div>
+      
+      <div className="cart">
+        <h2>Cart</h2>
+        {cart.map(item => (
+          <div key={item.id} className="cart-item">
+            <h3>{item.name}</h3>
+            <p>${item.price}</p>
+            <button onClick={() => setCart(cart.filter(i => i.id !== item.id))}>
+              Remove
+            </button>
+          </div>
+        ))}
+        <p>Total: ${cart.reduce((sum, item) => sum + item.price, 0)}</p>
+      </div>
+    </div>
+  );
+}
+
+export default App;
+</example> 
