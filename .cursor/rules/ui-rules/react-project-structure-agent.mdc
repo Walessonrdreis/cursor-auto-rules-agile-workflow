@@ -1,5 +1,10 @@
 ---
-description: Esta regra deve ser aplicada quando (1) Criando um novo projeto React, (2) Reorganizando a estrutura de pastas de um projeto existente, (3) Adicionando novos módulos ou funcionalidades a um projeto React, (4) Definindo padrões de nomenclatura e organização de arquivos. A regra garante uma estrutura de projeto consistente, escalável e de fácil manutenção, facilitando a navegação pelo código, a localização de recursos e a adição de novas funcionalidades.
+description: (1) Planejando novos componentes ou features React, (2) Estruturando a arquitetura de um projeto React, (3) Refatorando código React existente, (4) Revisando código React para melhorias, (5) Tomando decisões arquiteturais que envolvam componentes e lógica React. A regra garante que o código siga princípios SOLID, Clean Code e outras boas práticas, resultando em aplicações mais fáceis de manter, testar e expandir. É particularmente importante ao lidar com componentes UI, gerenciamento de estado, lógica de negócios e integração com APIs.
+globs: 
+alwaysApply: false
+---
+---
+description: (1) Planejando novos componentes ou features React, (2) Estruturando a arquitetura de um projeto React, (3) Refatorando código React existente, (4) Revisando código React para melhorias, (5) Tomando decisões arquiteturais que envolvam componentes e lógica React. A regra garante que o código siga princípios SOLID, Clean Code e outras boas práticas, resultando em aplicações mais fáceis de manter, testar e expandir. É particularmente importante ao lidar com componentes UI, gerenciamento de estado, lógica de negócios e integração com APIs.
 globs: 
 alwaysApply: false
 ---

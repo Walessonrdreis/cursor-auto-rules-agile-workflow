@@ -1,6 +1,9 @@
 ---
-description: Esta regra deve ser aplicada quando (1) Criando hooks personalizados em React, (2) Refatorando componentes para extrair lógica em hooks, (3) Revisando código com hooks personalizados, (4) Adicionando funcionalidades que envolvem lógica reutilizável. A regra garante que os hooks personalizados sejam escritos seguindo boas práticas, sejam reutilizáveis, mantenham o princípio de responsabilidade única e sejam fáceis de testar.
+description: Esta regra deve ser aplicada quando (1) Criando hooks personalizados em React, (2) Refatorando componentes para extrair lógica em hooks, (3) Revisando código com hooks personalizados, (4) Adicionando funcionalidades que envolvem lógica reutilizável. A regra garante que os hooks personalizados sejam escritos seguindo boas práticas, sejam reutilizáveis, mantenham o princípio de responsabilidade única e sejam fáceis de testar. globs: 
 globs: 
+alwaysApply: false
+---
+---
 alwaysApply: false
 ---
 
