@@ -1,0 +1,10 @@
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-layout__content {
+  flex: 1;
+  padding: var(--spacing-lg) 0;
+} 

@@ -1,0 +1,31 @@
+.register-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 300px); /* Ajusta para o header e footer */
+  padding: var(--spacing-lg) var(--spacing-md);
+}
+
+/* Reutilizamos a maioria dos estilos do login-page */
+/* Estilo específico para os termos */
+.auth-form__terms {
+  margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-light);
+  line-height: 1.5;
+}
+
+.auth-form__terms .auth-form__link {
+  display: inline;
+}
+
+/* Responsividade adicional para o formulário de cadastro */
+@media (max-width: 576px) {
+  .auth-form-container {
+    padding: var(--spacing-md);
+  }
+  
+  .auth-form__terms {
+    font-size: var(--font-size-xs);
+  }
+} 

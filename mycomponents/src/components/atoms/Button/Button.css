@@ -1,0 +1,136 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+  text-align: center;
+  white-space: nowrap;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+
+/* Variantes */
+.button--primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.button--primary:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+.button--secondary {
+  background-color: var(--color-secondary);
+  color: white;
+}
+
+.button--secondary:hover:not(:disabled) {
+  background-color: var(--color-secondary-dark);
+  transform: translateY(-1px);
+}
+
+.button--outline {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.button--outline:hover:not(:disabled) {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.button--ghost {
+  background-color: transparent;
+  color: var(--color-primary);
+}
+
+.button--ghost:hover:not(:disabled) {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.button--danger {
+  background-color: var(--color-error);
+  color: white;
+}
+
+.button--danger:hover:not(:disabled) {
+  filter: brightness(90%);
+  transform: translateY(-1px);
+}
+
+/* Tamanhos */
+.button--sm {
+  font-size: var(--font-size-xs);
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--border-radius-sm);
+}
+
+.button--md {
+  font-size: var(--font-size-sm);
+  padding: 0.5rem 1rem;
+}
+
+.button--lg {
+  font-size: var(--font-size-md);
+  padding: 0.75rem 1.5rem;
+}
+
+/* Estados */
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.button--full-width {
+  width: 100%;
+}
+
+.button--loading {
+  color: transparent;
+}
+
+/* Spinner de carregamento */
+.button__spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1.25em;
+  height: 1.25em;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: button-spinner 0.8s linear infinite;
+}
+
+@keyframes button-spinner {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Ícones */
+.button__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.button__icon--start {
+  margin-right: 0.25rem;
+}
+
+.button__icon--end {
+  margin-left: 0.25rem;
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(1px);
+} 

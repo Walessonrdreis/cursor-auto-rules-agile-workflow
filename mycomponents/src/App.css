@@ -1,0 +1,92 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background-color: var(--color-primary);
+  color: white;
+  padding: var(--spacing-xl) var(--spacing-md);
+  text-align: center;
+}
+
+.app-header h1 {
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-2xl);
+}
+
+.component-section {
+  padding: var(--spacing-xl) 0;
+}
+
+.component-section h2 {
+  margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-xl);
+  color: var(--color-text);
+}
+
+.component-section p {
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-text-light);
+}
+
+.component-showcase {
+  background-color: var(--color-foreground);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.component-showcase h3 {
+  margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
+}
+
+.button-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  align-items: center;
+}

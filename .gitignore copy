@@ -1,6 +1,4 @@
-.DS_STORE
-
-# Dependï¿½ncias
+# Dependências
 /node_modules
 /.pnp
 .pnp.js
@@ -13,7 +11,7 @@
 .env.test.local
 .env.production.local
 
-# Build e produï¿½ï¿½o
+# Build e produção
 /build
 /dist
 /coverage
@@ -26,7 +24,7 @@ yarn-error.log*
 lerna-debug.log*
 
 
-# Arquivos temporï¿½rios
+# Arquivos temporários
 .DS_Store
 .cache/
 .idea/

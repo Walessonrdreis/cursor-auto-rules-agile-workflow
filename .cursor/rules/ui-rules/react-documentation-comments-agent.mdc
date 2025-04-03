@@ -3,6 +3,11 @@ description: Esta regra deve ser aplicada quando (1) Documentando componentes Re
 globs: 
 alwaysApply: false
 ---
+---
+description: Esta regra deve ser aplicada quando (1) Documentando componentes React, hooks ou funções, (2) Escrevendo comentários em código, (3) Estabelecendo padrões de documentação para equipes, (4) Revisando qualidade de código. A regra garante que o código seja bem documentado, facilitando a manutenção, colaboração entre equipes e integração de novos desenvolvedores ao projeto.
+globs: 
+alwaysApply: false
+---
 
 # Documentação e Comentários em React
 

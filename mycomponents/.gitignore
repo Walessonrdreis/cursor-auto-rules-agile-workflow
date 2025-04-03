@@ -1,10 +1,9 @@
-.DS_STORE
-
-# Dependï¿½ncias
+# Dependências
 /node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
+
 
 # Ambiente de desenvolvimento
 .env
@@ -13,11 +12,13 @@
 .env.test.local
 .env.production.local
 
-# Build e produï¿½ï¿½o
+
+# Build e produção
 /build
 /dist
 /coverage
 /storybook-static
+
 
 # Logs
 npm-debug.log*
@@ -26,13 +27,14 @@ yarn-error.log*
 lerna-debug.log*
 
 
-# Arquivos temporï¿½rios
+# Arquivos temporários
 .DS_Store
 .cache/
 .idea/
 .vscode/
 *.swp
 *.swo
+
 *.sublime-workspace
 *.sublime-project
 .project
@@ -42,25 +44,13 @@ lerna-debug.log*
 *.seed
 *.pid.lock
 
+
 # Arquivos de teste
 /coverage
 /.nyc_output
 *.lcov
 
+
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
-
-# Outros
-.vercel
-.next
-.nuxt
-/out/
-.turbo
-
-# Arquivos de sistema
-Thumbs.db
-desktop.ini
-ehthumbs.db
-ehthumbs_vista.db
-$RECYCLE.BIN/
