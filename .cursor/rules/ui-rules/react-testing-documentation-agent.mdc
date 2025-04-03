@@ -1,0 +1,450 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: Esta regra deve ser aplicada quando (1) Criando ou atualizando testes para componentes React, (2) Estabelecendo padrões de documentação de testes, (3) Revisando qualidade de testes, (4) Implementando estratégias de teste. A regra garante que os testes sejam bem documentados, claros e mantenham um padrão consistente em todo o projeto.
+globs: 
+alwaysApply: false
+---
+
+# Documentação e Estruturação de Testes em React
+
+## Regras Críticas
+
+### Estrutura de Arquivos de Teste
+- Todo arquivo de teste deve estar próximo ao código que testa (`Component.tsx` e `Component.test.tsx`)
+- Use nomes descritivos para arquivos de teste, seguindo o padrão `[nome-do-arquivo].test.tsx`
+- Organize testes em pastas `__tests__` dentro de cada módulo para testes mais complexos
+- Separe testes mock (`__mocks__`) de testes reais
+
+### Documentação do Propósito do Teste
+- Cada arquivo de teste deve começar com um comentário de bloco descrevendo o componente/função testado
+- Documente claramente o que está sendo testado e por quê
+- Explique abordagens especiais de teste ou configurações complexas
+- Identifique dependências externas e como são simuladas
+
+```tsx
+/**
+ * Testes para o componente LoginForm
+ * 
+ * Estes testes verificam:
+ * - Renderização adequada dos campos
+ * - Validação de formulário
+ * - Comportamento de submissão
+ * - Tratamento de erros de API
+ * 
+ * Dependências principais:
+ * - React Testing Library
+ * - MSW para mock de API
+ * - Jest para asserções
+ */
+```
+
+### Organização de Testes
+- Use `describe` para agrupar testes relacionados
+- Nomeie cada bloco de `describe` com descrições claras do que está sendo testado
+- Use `it` ou `test` com descrições que completam a frase "deveria..."
+- Organize testes em ordem lógica: renderização, interações, casos de borda
+
+```tsx
+describe('LoginForm', () => {
+  // Grupo de testes de renderização
+  describe('Renderização', () => {
+    it('deve renderizar todos os campos obrigatórios', () => {
+      // teste aqui
+    });
+    
+    it('deve mostrar mensagens de erro quando os campos são inválidos', () => {
+      // teste aqui
+    });
+  });
+  
+  // Grupo de testes de submissão
+  describe('Submissão do formulário', () => {
+    it('deve chamar onLoginSuccess quando a autenticação é bem-sucedida', () => {
+      // teste aqui
+    });
+    
+    it('deve exibir mensagem de erro quando a autenticação falha', () => {
+      // teste aqui
+    });
+  });
+});
+```
+
+### Documentação de Preparação de Teste
+- Documente a configuração do teste com comentários
+- Explique o propósito de mocks complexos
+- Documente dados de teste usando comentários inline
+- Use funções de helper bem nomeadas para configuração repetitiva
+
+```tsx
+// Configura o mock do serviço de autenticação para simular falha de login
+const setupAuthFailure = () => {
+  // Retorna erro 401 com mensagem específica
+  authServiceMock.login.mockRejectedValue(
+    new Error('Credenciais inválidas')
+  );
+};
+```
+
+### Asserções
+- Escreva asserções claras com mensagens de erro específicas
+- Documente asserções complexas com comentários explicando o que está sendo verificado
+- Prefira asserções específicas em vez de genéricas
+- Evite várias asserções em um único teste, a menos que fortemente relacionadas
+
+```tsx
+// Verifica se o botão de login é desabilitado durante o processo de submissão
+expect(submitButton).toBeDisabled();
+
+// Verifica se a mensagem de erro correta é exibida após falha de autenticação
+expect(screen.getByText('Credenciais inválidas')).toBeInTheDocument();
+```
+
+### Simulação de Eventos e Interações
+- Documente simulações de interações de usuário
+- Explique o propósito de cada interação
+- Documente a ordem das operações em fluxos complexos
+- Use comentários para separar etapas distintas em testes longos
+
+```tsx
+// Etapa 1: Preencher formulário com credenciais válidas
+userEvent.type(emailInput, 'usuario@exemplo.com');
+userEvent.type(passwordInput, 'senha123');
+
+// Etapa 2: Submeter o formulário
+userEvent.click(submitButton);
+
+// Etapa 3: Verificar resposta bem-sucedida
+await waitFor(() => {
+  expect(onLoginSuccessMock).toHaveBeenCalledWith({
+    id: '123',
+    name: 'Usuário Teste',
+    email: 'usuario@exemplo.com'
+  });
+});
+```
+
+### Testes de Snapshot
+- Documente o propósito e escopo de cada snapshot
+- Explique quais partes da UI estão sendo capturadas
+- Revise e atualize snapshots regularmente
+- Evite snapshots demasiadamente grandes
+
+```tsx
+/**
+ * Snapshot do componente ProductCard em estado normal.
+ * 
+ * Captura:
+ * - Layout básico com imagem, nome e preço
+ * - Botão "Adicionar ao carrinho" no estado padrão
+ * 
+ * Não inclui estados de loading ou erro.
+ */
+expect(container).toMatchSnapshot();
+```
+
+### Mocks e Stubs
+- Documente o comportamento esperado de cada mock
+- Explique por que um mock específico é necessário
+- Documente valores de retorno padrão e personalizados
+- Restabeleça mocks após cada teste
+
+```tsx
+/**
+ * Mock do serviço de autenticação.
+ * 
+ * Comportamento simulado:
+ * - login(): Retorna um usuário fictício para credenciais válidas
+ * - logout(): Resolve sem valor para simular logout bem-sucedido
+ * - refreshToken(): Simula renovação bem-sucedida de token
+ */
+jest.mock('../services/authService', () => ({
+  login: jest.fn(),
+  logout: jest.fn().mockResolvedValue(undefined),
+  refreshToken: jest.fn()
+}));
+```
+
+### Documentação de Casos de Borda
+- Identifique e documente casos de borda e cenários de erro
+- Explique como o componente deve se comportar em cada caso
+- Documente tratamento de entradas inesperadas
+- Explique como erros são capturados e exibidos
+
+```tsx
+/**
+ * Teste de caso de borda: Timeout de conexão durante login
+ * 
+ * Verifica se:
+ * 1. Uma mensagem de erro apropriada é exibida
+ * 2. O botão de submissão é reativado
+ * 3. O usuário pode tentar novamente
+ */
+it('deve lidar corretamente com timeout de conexão', async () => {
+  // Configura erro de timeout
+  authServiceMock.login.mockRejectedValue(
+    new Error('Timeout ao conectar ao servidor')
+  );
+  
+  // Resto do teste...
+});
+```
+
+## Exemplos
+
+<example>
+// Arquivo bem documentado: LoginForm.test.tsx
+
+/**
+ * Testes para o componente LoginForm
+ * 
+ * Estes testes verificam o comportamento do formulário de login,
+ * incluindo validação de entrada, submissão e tratamento de erros.
+ */
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { LoginForm } from './LoginForm';
+import { authService } from '../services/authService';
+
+// Mock do serviço de autenticação
+jest.mock('../services/authService');
+const mockedAuthService = authService as jest.Mocked<typeof authService>;
+
+describe('LoginForm', () => {
+  // Hooks comuns para todos os testes
+  const onLoginSuccessMock = jest.fn();
+  const onLoginErrorMock = jest.fn();
+  
+  // Redefinir todos os mocks antes de cada teste
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  
+  /**
+   * Helper para renderizar o componente com props padrão
+   */
+  const renderLoginForm = (props = {}) => {
+    return render(
+      <LoginForm
+        onLoginSuccess={onLoginSuccessMock}
+        onLoginError={onLoginErrorMock}
+        {...props}
+      />
+    );
+  };
+
+  describe('Renderização inicial', () => {
+    it('deve renderizar todos os campos e o botão de login', () => {
+      renderLoginForm();
+      
+      // Verifica se todos os elementos essenciais estão presentes
+      expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/senha/i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /entrar/i })).toBeInTheDocument();
+    });
+  });
+  
+  describe('Validação de formulário', () => {
+    it('deve mostrar erro quando email é inválido', async () => {
+      renderLoginForm();
+      
+      // Digita um email inválido
+      const emailInput = screen.getByLabelText(/email/i);
+      userEvent.type(emailInput, 'email-invalido');
+      userEvent.tab(); // Move o foco para sair do campo
+      
+      // Verifica se a mensagem de erro aparece
+      await waitFor(() => {
+        expect(screen.getByText(/email inválido/i)).toBeInTheDocument();
+      });
+    });
+    
+    it('deve mostrar erro quando senha é muito curta', async () => {
+      renderLoginForm();
+      
+      // Digita uma senha muito curta
+      const passwordInput = screen.getByLabelText(/senha/i);
+      userEvent.type(passwordInput, '123');
+      userEvent.tab(); // Move o foco para sair do campo
+      
+      // Verifica se a mensagem de erro aparece
+      await waitFor(() => {
+        expect(screen.getByText(/senha deve ter pelo menos 6 caracteres/i)).toBeInTheDocument();
+      });
+    });
+  });
+  
+  describe('Processo de login', () => {
+    /**
+     * Helper para simular preenchimento válido do formulário
+     */
+    const fillValidForm = () => {
+      userEvent.type(screen.getByLabelText(/email/i), 'usuario@exemplo.com');
+      userEvent.type(screen.getByLabelText(/senha/i), 'senha123');
+    };
+    
+    it('deve chamar o serviço de autenticação com credenciais corretas', async () => {
+      // Configura mock para sucesso
+      mockedAuthService.login.mockResolvedValue({ id: '1', name: 'Usuário Teste' });
+      
+      renderLoginForm();
+      fillValidForm();
+      
+      // Submete o formulário
+      userEvent.click(screen.getByRole('button', { name: /entrar/i }));
+      
+      // Verifica se o serviço foi chamado com os parâmetros corretos
+      await waitFor(() => {
+        expect(mockedAuthService.login).toHaveBeenCalledWith(
+          { email: 'usuario@exemplo.com', password: 'senha123' },
+          false // valor padrão para rememberUser
+        );
+      });
+    });
+    
+    it('deve desabilitar o botão durante a submissão', async () => {
+      // Configura mock com delay para simular processamento
+      mockedAuthService.login.mockImplementation(() => 
+        new Promise(resolve => setTimeout(() => resolve({ id: '1', name: 'Usuário' }), 100))
+      );
+      
+      renderLoginForm();
+      fillValidForm();
+      
+      // Submete o formulário
+      const submitButton = screen.getByRole('button', { name: /entrar/i });
+      userEvent.click(submitButton);
+      
+      // Verifica se o botão foi desabilitado
+      expect(submitButton).toBeDisabled();
+      
+      // Aguarda a conclusão
+      await waitFor(() => {
+        expect(submitButton).not.toBeDisabled();
+      });
+    });
+    
+    it('deve chamar onLoginSuccess quando autenticação for bem-sucedida', async () => {
+      // Dados de teste para usuário autenticado
+      const mockUser = { 
+        id: '1', 
+        name: 'Usuário Teste', 
+        email: 'usuario@exemplo.com' 
+      };
+      
+      // Configura autenticação bem-sucedida
+      mockedAuthService.login.mockResolvedValue(mockUser);
+      
+      renderLoginForm();
+      fillValidForm();
+      
+      // Submete o formulário
+      userEvent.click(screen.getByRole('button', { name: /entrar/i }));
+      
+      // Verifica se callback de sucesso foi chamado com usuário correto
+      await waitFor(() => {
+        expect(onLoginSuccessMock).toHaveBeenCalledWith(mockUser);
+      });
+    });
+    
+    it('deve chamar onLoginError quando autenticação falhar', async () => {
+      // Configura falha de autenticação
+      const errorMessage = 'Credenciais inválidas';
+      mockedAuthService.login.mockRejectedValue(new Error(errorMessage));
+      
+      renderLoginForm();
+      fillValidForm();
+      
+      // Submete o formulário
+      userEvent.click(screen.getByRole('button', { name: /entrar/i }));
+      
+      // Verifica se callback de erro foi chamado com mensagem correta
+      await waitFor(() => {
+        expect(onLoginErrorMock).toHaveBeenCalledWith(errorMessage);
+      });
+    });
+  });
+  
+  describe('Opção "lembrar usuário"', () => {
+    it('deve passar o valor correto para o serviço quando rememberUser=true', async () => {
+      // Configura mock para sucesso
+      mockedAuthService.login.mockResolvedValue({ id: '1', name: 'Usuário Teste' });
+      
+      // Renderiza com prop rememberUser=true
+      renderLoginForm({ rememberUser: true });
+      
+      // Preenche e submete
+      userEvent.type(screen.getByLabelText(/email/i), 'usuario@exemplo.com');
+      userEvent.type(screen.getByLabelText(/senha/i), 'senha123');
+      userEvent.click(screen.getByRole('button', { name: /entrar/i }));
+      
+      // Verifica se o serviço foi chamado com rememberUser=true
+      await waitFor(() => {
+        expect(mockedAuthService.login).toHaveBeenCalledWith(
+          expect.any(Object),
+          true // rememberUser deve ser true
+        );
+      });
+    });
+  });
+});
+</example>
+
+<example type="invalid">
+// Arquivo de teste sem documentação adequada
+
+import React from 'react';
+import { render, fireEvent, waitFor } from '@testing-library/react';
+import LoginForm from './LoginForm';
+import axios from 'axios';
+
+jest.mock('axios');
+
+describe('LoginForm', () => {
+  test('renders', () => {
+    const { getByText } = render(<LoginForm success={() => {}} failure={() => {}} />);
+    expect(getByText('Login')).toBeInTheDocument();
+  });
+
+  test('login works', async () => {
+    axios.post.mockResolvedValue({ data: { token: '123', user: { name: 'Test' } } });
+    
+    const success = jest.fn();
+    const { getByLabelText, getByText } = render(
+      <LoginForm success={success} failure={() => {}} />
+    );
+    
+    fireEvent.change(getByLabelText('Email'), { target: { value: 'test@test.com' } });
+    fireEvent.change(getByLabelText('Password'), { target: { value: 'password' } });
+    fireEvent.click(getByText('Login'));
+    
+    await waitFor(() => expect(success).toHaveBeenCalled());
+    expect(axios.post).toHaveBeenCalledWith('/api/login', {
+      email: 'test@test.com',
+      password: 'password'
+    });
+  });
+
+  test('shows error', async () => {
+    axios.post.mockRejectedValue({ 
+      response: { data: { message: 'Invalid credentials' } } 
+    });
+    
+    const { getByLabelText, getByText, findByText } = render(
+      <LoginForm success={() => {}} failure={() => {}} />
+    );
+    
+    fireEvent.change(getByLabelText('Email'), { target: { value: 'test@test.com' } });
+    fireEvent.change(getByLabelText('Password'), { target: { value: 'wrong' } });
+    fireEvent.click(getByText('Login'));
+    
+    const errorMessage = await findByText('Invalid credentials');
+    expect(errorMessage).toBeInTheDocument();
+  });
+});
+</example> 

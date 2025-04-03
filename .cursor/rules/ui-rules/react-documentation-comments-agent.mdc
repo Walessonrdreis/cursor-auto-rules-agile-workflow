@@ -1,0 +1,345 @@
+---
+description: Esta regra deve ser aplicada quando (1) Documentando componentes React, hooks ou funções, (2) Escrevendo comentários em código, (3) Estabelecendo padrões de documentação para equipes, (4) Revisando qualidade de código. A regra garante que o código seja bem documentado, facilitando a manutenção, colaboração entre equipes e integração de novos desenvolvedores ao projeto.
+globs: 
+alwaysApply: false
+---
+
+# Documentação e Comentários em React
+
+## Regras Críticas
+
+### Princípios Gerais
+- Documente o **porquê** em vez do **o quê** ou **como**
+- Mantenha a documentação próxima ao código que ela descreve
+- Atualize a documentação sempre que o código mudar
+- Use comentários com moderação e apenas quando necessário
+- Prefira código auto-explicativo com nomes descritivos
+
+### JSDoc para Componentes React
+- Documente todos os componentes exportados usando JSDoc
+- Descreva claramente o propósito e responsabilidade do componente
+- Documente todas as props com seus tipos e descrições
+- Inclua informações sobre valores padrão e props opcionais
+- Mencione dependências externas ou requisitos específicos
+
+```tsx
+/**
+ * Exibe um cartão de produto com imagem, informações e botão de compra.
+ * Responsável por mostrar os detalhes do produto e permitir adicioná-lo ao carrinho.
+ *
+ * @component
+ * @example
+ * ```tsx
+ * <ProductCard 
+ *   product={{ id: '1', name: 'Produto', price: 29.99, imageUrl: '/img.jpg' }}
+ *   layout="grid"
+ * />
+ * ```
+ */
+export const ProductCard: React.FC<ProductCardProps> = ({ product, layout = 'grid' }) => {
+  // Implementação...
+};
+```
+
+### Documentação de Props com TypeScript
+- Use interfaces TypeScript para definir props de componentes
+- Adicione comentários JSDoc para cada propriedade da interface
+- Indique claramente quais props são obrigatórias e quais são opcionais
+- Documente tipos complexos ou unions com exemplos
+
+```tsx
+/**
+ * Propriedades do componente ProductCard
+ */
+interface ProductCardProps {
+  /** Dados do produto a ser exibido */
+  product: Product;
+  
+  /** 
+   * Layout de exibição do cartão 
+   * @default 'grid'
+   */
+  layout?: 'grid' | 'list';
+  
+  /** 
+   * Função chamada quando o produto é adicionado ao carrinho
+   * @param productId ID do produto adicionado
+   * @param quantity Quantidade adicionada
+   */
+  onAddToCart?: (productId: string, quantity: number) => void;
+}
+```
+
+### Documentação de Hooks Personalizados
+- Documente a finalidade, parâmetros e valores retornados
+- Forneça exemplos de uso para casos complexos
+- Descreva efeitos colaterais ou limitações conhecidas
+- Documente condições de erro e como são tratadas
+
+```tsx
+/**
+ * Hook para gerenciar a lógica de um formulário com validação.
+ * 
+ * @param initialValues - Valores iniciais dos campos do formulário
+ * @param validationSchema - Schema de validação Yup
+ * @param onSubmit - Função chamada quando o formulário é válido e enviado
+ * 
+ * @returns Objeto contendo:
+ * - values: valores atuais do formulário
+ * - errors: erros de validação por campo
+ * - touched: campos que já foram tocados pelo usuário
+ * - handleChange: função para atualizar valores
+ * - handleBlur: função para marcar campo como tocado
+ * - handleSubmit: função para enviar o formulário
+ * - isSubmitting: indica se o formulário está sendo enviado
+ * - resetForm: função para resetar o formulário
+ * 
+ * @example
+ * ```tsx
+ * const { values, errors, handleChange, handleSubmit } = useForm(
+ *   { email: '', password: '' },
+ *   validationSchema,
+ *   (values) => console.log(values)
+ * );
+ * ```
+ */
+export function useForm<T extends Record<string, any>>(
+  initialValues: T,
+  validationSchema?: any,
+  onSubmit?: (values: T) => void | Promise<void>
+): FormHookResult<T> {
+  // Implementação...
+}
+```
+
+### Documentação de Funções Utilitárias
+- Documente entradas, saídas e efeitos colaterais
+- Inclua exemplos para casos de uso comuns
+- Descreva possíveis erros e como são tratados
+- Use anotações TypeScript para maior clareza
+
+### Comentários no Código
+- Use comentários para explicar decisões não óbvias ou complexas
+- Documente soluções alternativas (workarounds) e razões para escolhas específicas
+- Use comentários para marcar TODOs, FIXMEs e otimizações futuras
+- Evite comentários para código auto-explicativo
+
+```tsx
+// Bom: explica o porquê
+// Usamos debounce para limitar chamadas à API durante digitação
+const debouncedSearch = useDebounce(searchTerm, 300);
+
+// Ruim: explica o óbvio
+// Define o estado do termo de busca
+const [searchTerm, setSearchTerm] = useState('');
+```
+
+### Documentação de API e Serviços
+- Documente cada endpoint da API com seu propósito, parâmetros e resposta
+- Descreva formatos de dados, códigos de status e tratamento de erros
+- Use tipos TypeScript para definir estruturas de request/response
+- Forneça exemplos de uso para cada serviço
+
+### README e Documentação a Nível de Projeto
+- Cada diretório principal deve ter um arquivo README.md
+- READMEs devem explicar o propósito do módulo/diretório
+- Documente convenções específicas do módulo
+- Inclua exemplos de uso para módulos importantes
+
+### Documentação com Storybook
+- Crie histórias para todos os componentes UI reutilizáveis
+- Documente variações e estados com Storybook
+- Use Storybook Controls para mostrar diferentes configurações de props
+- Inclua descrições e notas de uso para cada componente
+
+### Formatação de Comentários
+- Seja consistente com o estilo de comentários (/** */ vs // vs /* */)
+- Use marcadores e listas para melhorar a legibilidade
+- Mantenha comentários concisos e diretos ao ponto
+- Quebre linhas em comentários longos para melhorar legibilidade
+
+## Exemplos
+
+<example>
+// Componente bem documentado
+
+/**
+ * Componente de formulário de login que gerencia autenticação do usuário.
+ * Lida com validação, submissão e feedback de erros.
+ *
+ * @component
+ */
+import React from 'react';
+import { useForm } from '../hooks/useForm';
+import { TextField } from 'components/atoms/TextField';
+import { Button } from 'components/atoms/Button';
+import { authService } from '../services/authService';
+import type { LoginCredentials } from '../types';
+
+/**
+ * Props do componente LoginForm
+ */
+interface LoginFormProps {
+  /** Função chamada após login bem-sucedido */
+  onLoginSuccess?: (user: User) => void;
+  
+  /** Função chamada quando ocorre um erro na autenticação */
+  onLoginError?: (error: string) => void;
+  
+  /** 
+   * Indica se deve lembrar o usuário após o login 
+   * @default false
+   */
+  rememberUser?: boolean;
+}
+
+/**
+ * Formulário de login para autenticação de usuários.
+ *
+ * @example
+ * ```tsx
+ * <LoginForm 
+ *   onLoginSuccess={handleSuccess} 
+ *   onLoginError={handleError}
+ *   rememberUser={true}
+ * />
+ * ```
+ */
+export const LoginForm: React.FC<LoginFormProps> = ({
+  onLoginSuccess,
+  onLoginError,
+  rememberUser = false
+}) => {
+  // Usamos o hook customizado para gerenciar o estado e validação do formulário
+  const { values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting } = useForm<LoginCredentials>(
+    { email: '', password: '' },
+    validationSchema,
+    async (credentials) => {
+      try {
+        // Tentativa de login usando o serviço de autenticação
+        const user = await authService.login(credentials, rememberUser);
+        
+        // Notifica componente pai sobre sucesso
+        onLoginSuccess?.(user);
+      } catch (error) {
+        // Captura e repassa erros para tratamento externo
+        const errorMessage = error instanceof Error 
+          ? error.message 
+          : 'Falha na autenticação';
+        
+        onLoginError?.(errorMessage);
+      }
+    }
+  );
+
+  return (
+    <form onSubmit={handleSubmit} className="login-form" aria-labelledby="login-heading">
+      <h2 id="login-heading">Login</h2>
+      
+      <TextField
+        id="email"
+        name="email"
+        label="Email"
+        type="email"
+        value={values.email}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={touched.email && errors.email}
+        disabled={isSubmitting}
+        required
+        aria-required="true"
+      />
+      
+      <TextField
+        id="password"
+        name="password"
+        label="Senha"
+        type="password"
+        value={values.password}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={touched.password && errors.password}
+        disabled={isSubmitting}
+        required
+        aria-required="true"
+      />
+      
+      {/* Botão usa estado de loading durante submissão */}
+      <Button 
+        type="submit" 
+        isLoading={isSubmitting} 
+        disabled={isSubmitting}
+      >
+        Entrar
+      </Button>
+    </form>
+  );
+};
+</example>
+
+<example type="invalid">
+// Componente sem documentação adequada
+
+import React, { useState } from 'react';
+import axios from 'axios';
+
+// Login form component
+function LoginForm({ success, failure }) {
+  const [email, setEmail] = useState('');
+  const [pass, setPass] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState(null);
+  
+  // Handle submit
+  async function submit(e) {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      // Call API
+      const res = await axios.post('/api/login', { email, password: pass });
+      setLoading(false);
+      success(res.data);
+    } catch (e) {
+      setLoading(false);
+      setErr(e.response?.data?.message || 'Error logging in');
+      failure(e);
+    }
+  }
+  
+  return (
+    <form onSubmit={submit}>
+      <h2>Login</h2>
+      
+      {/* Email field */}
+      <div className="form-group">
+        <label>Email</label>
+        <input 
+          type="email" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+        />
+      </div>
+      
+      {/* Password field */}
+      <div className="form-group">
+        <label>Password</label>
+        <input 
+          type="password" 
+          value={pass} 
+          onChange={(e) => setPass(e.target.value)} 
+        />
+      </div>
+      
+      {err && <p className="error">{err}</p>}
+      
+      {/* Submit button */}
+      <button type="submit" disabled={loading}>
+        {loading ? 'Loading...' : 'Login'}
+      </button>
+    </form>
+  );
+}
+
+export default LoginForm;
+</example> 
